@@ -19,7 +19,7 @@ pipeline {
         sh '''
         docker run --rm --network ${NETWORK} \
           -v $WORKSPACE/nginx_app/html:/out mongo:6 \
-          bash -c "mongoexport --db=projetdb --collection=restaurants --out=/out/restaurants.json --jsonArray"
+          bash -c "mongoexport --host=mongodb --db=projetdb --collection=restaurants --out=/out/restaurants.json --jsonArray"
         '''
       }
     }
