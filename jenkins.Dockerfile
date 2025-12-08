@@ -1,13 +1,42 @@
-FROM jenkins/jenkins:lts
+pipeline {
+  agent any
 
-USER root
+  environment {
+    NETWORK = "minprojet_bis_network"
+    IMAGE_NAME = "nginx_restaurants"
+  }
 
-# Installer Docker CLI dans Jenkins (client uniquement)
-RUN apt-get update && \
-    apt-get install -y docker.io && \
-    apt-get clean
+  stages {
 
-# Permettre à Jenkins d'utiliser Docker
-RUN usermod -aG docker jenkins
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
 
-USER jenkins
+    stage('Export from MongoDB') {
+      steps {
+        sh '''
+        docker run --rm --network ${NETWORK} \
+          -v $WORKSPACE/nginx_app/html:/out mongo:6 \
+          bash -c "mongoexport --db=projetdb --collection=restaurants --out=/out/restaurants.json --jsonArray"
+        '''
+      }
+    }
+
+    stage('Build Nginx Image') {
+      steps {
+        sh "docker build -t ${IMAGE_NAME}:latest ./nginx_app"
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        sh '''
+        docker rm -f deploy_nginx || true
+        docker run -d --name deploy_nginx --network ${NETWORK} -p 8090:80 ${IMAGE_NAME}:latest
+        '''
+      }
+    }
+  }
+}
