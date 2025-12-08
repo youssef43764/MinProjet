@@ -13,14 +13,23 @@
       try {
         const r = await fetch('restaurants.json');
         const data = await r.json();
-        const html = data.map((d,i) =>
-          <p><strong></strong> —  — ?</p>
-        ).join('');
+
+        const html = data.map((d, i) => `
+          <p>
+            <strong>${i + 1}. ${d.name}</strong><br>
+            ${d.address || "Adresse inconnue"}<br>
+            ${d.borough || ""}
+          </p>
+        `).join('');
+
         document.getElementById('list').innerHTML = html;
+
       } catch (e) {
-        document.getElementById('list').innerHTML = '<i>restaurants.json introuvable.</i>';
+        document.getElementById('list').innerHTML =
+          '<i>restaurants.json introuvable.</i>';
       }
     }
+
     load();
   </script>
 </body>
