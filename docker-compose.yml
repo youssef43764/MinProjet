@@ -1,0 +1,62 @@
+version: "3.8"
+
+networks:
+  bis_network:
+    driver: bridge
+
+volumes:
+  jenkins_home:
+  jenkins_configs:
+  mongo_data:
+
+services:
+
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    networks:
+      - bis_network
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: projetdb
+
+  jenkins:
+    build:
+      context: .
+      dockerfile: jenkins.Dockerfile
+    container_name: jenkins
+    user: root
+    networks:
+      - bis_network
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - jenkins_configs:/var/jenkins_configs
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  web1:
+    build:
+      context: ./nginx_app
+    container_name: web1
+    networks:
+      - bis_network
+    ports:
+      - "8081:80"
+    depends_on:
+      - mongodb
+
+  web2:
+    build:
+      context: ./nginx_app
+    container_name: web2
+    networks:
+      - bis_network
+    ports:
+      - "8082:80"
+    depends_on:
+      - mongodb

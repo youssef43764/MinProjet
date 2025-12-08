@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Restaurants</title>
+</head>
+<body>
+  <h1>Liste des restaurants (via restaurants.json)</h1>
+  <div id="list">Chargement...</div>
+
+  <script>
+    async function load() {
+      try {
+        const r = await fetch('restaurants.json');
+        const data = await r.json();
+        const html = data.map((d,i) =>
+          <p><strong></strong> —  — ?</p>
+        ).join('');
+        document.getElementById('list').innerHTML = html;
+      } catch (e) {
+        document.getElementById('list').innerHTML = '<i>restaurants.json introuvable.</i>';
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
