@@ -11,16 +11,20 @@
   <script>
     async function load() {
       try {
-        const r = await fetch('restaurants.json');
+        const r = await fetch('./restaurants.json');
         const data = await r.json();
 
-        const html = data.map((d, i) => `
-          <p>
-            <strong>${i + 1}. ${d.name}</strong><br>
-            ${d.address || "Adresse inconnue"}<br>
-            ${d.borough || ""}
-          </p>
-        `).join('');
+        const html = data.map((d, i) => {
+          const addr = d.address ? `${d.address.building} ${d.address.street}, ${d.address.zipcode}` : "Adresse inconnue";
+
+          return `
+            <p>
+              <strong>${i + 1}. ${d.name}</strong><br>
+              ${addr}<br>
+              ${d.borough || ""}
+            </p>
+          `;
+        }).join('');
 
         document.getElementById('list').innerHTML = html;
 
