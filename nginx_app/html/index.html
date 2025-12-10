@@ -15,14 +15,26 @@
         const data = await r.json();
 
         const html = data.map((d, i) => {
-          const addr = d.address ? `${d.address.building} ${d.address.street}, ${d.address.zipcode}` : "Adresse inconnue";
+
+          // Adresse formatée
+          const addr = d.address
+            ? `${d.address.building} ${d.address.street}, ${d.address.zipcode}`
+            : "Adresse inconnue";
+
+          // Notes (grades) formatées
+          const grades = Array.isArray(d.grades)
+            ? d.grades.map(g => `${g.grade} (${g.score}) - ${new Date(g.date.$date).toLocaleDateString()}`).join("<br>")
+            : "Aucune note";
 
           return `
-            <p>
+            <div style="margin-bottom: 15px;">
               <strong>${i + 1}. ${d.name}</strong><br>
-              ${addr}<br>
-              ${d.borough || ""}
-            </p>
+              <b>Adresse :</b> ${addr}<br>
+              <b>Borough :</b> ${d.borough || "?"}<br>
+              <b>Cuisine :</b> ${d.cuisine || "?"}<br>
+              <b>Notes :</b><br>
+              ${grades}
+            </div>
           `;
         }).join('');
 
